@@ -110,6 +110,7 @@ Relates #42988
 - Ensure template files are in the correct location (`testdata/tmpl`)
 - Verify template file names match the resource name
 - If identity tests are not generated, verify that the `identitytests` generator is being called within the service's `generate.go` file. If it isn't, add the following line to `generate.go` next to the existing `go:generate` directives.
+- If a generated test does not reference the `var.rName` variable, add an `// @Testing(generator=false)` annotation to remove it from the generated configuration.
 
 ```go
 //go:generate go run ../../generate/identitytests/main.go
@@ -124,6 +125,7 @@ Relates #42988
 ### Import Test Failures
 
 - If identity tests are failing because they expect an update during import but get a no-op, add an `// @Testing(plannableImportAction="NoOp")` annotation and re-generate the test files.
+- If identity tests are failing import verification due to missing attribute values, check the `_basic` test implementation for the presence of an `ImportStateVerifyIgnore` field in the import test step. If present, add an `// @Testing(importIgnore="arg1")` annotation where `arg1` is replaced with the argument name(s) from the verify ignore slice. If mutiple fields are ignored, separate field names with a `;`, e.g. `arg1;arg2`.
 - If a region override test is failing and a custom import fuction is configured, ensure the appropriate helper function from the `importer` package is used.
     - `RegionalSingleParameterized` - regional resources whose identity is made up of a single parameter.
     - `GlobalSingleParameterized` - global resources whose identity is made up of a single parameter.
